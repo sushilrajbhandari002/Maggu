@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>I Love You Detector 💘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: rgb(255, 0, 0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+      padding: 20px;
+    }
+
+    /* Fullscreen Video Background */
+    #video-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .heart {
+      width: 120px;
+      height: 110px;
+      position: relative;
+      transform: scale(0);
+      animation: none;
+      z-index: 2;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 100px;
+      height: 150px;
+      border-radius: 50px 50px 0 0;
+      background: #ff1744;
+      box-shadow: 0 0 20px #ff1744, 0 0 40px #ff1744;
+    }
+
+    .heart::before {
+      left: 50px;
+      transform: rotate(-45deg);
+      transform-origin: 0 100%;
+    }
+
+    .heart::after {
+      left: 0;
+      transform: rotate(45deg);
+      transform-origin: 100% 100%;
+    }
+
+    .message {
+      margin-top: 25px;
+      font-size: 1.8rem;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 2;
+    }
+
+    .show {
+      animation: pop 0.6s ease forwards;
+    }
+
+    .visible {
+      opacity: 1;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1.3);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Floating Hearts and Roses */
+    .float {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      animation: floatUp 10s linear infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100vh) scale(0.5) rotate(0deg);
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.2) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Replay Button */
+    #replayBtn {
+      background: #cdff37;
+      color: rgb(2, 2, 2);
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-top: 20px;
+      border-radius: 8px;
+      z-index: 2;
+      transition: background 0.3s;
+    }
+
+    #replayBtn:hover {
+      background: #d50000;
+    }
+
+  </style>
+</head>
+<body>
+  <video id="video-background" autoplay muted loop>
+    <source src="vieos/VID-20250118-WA0007.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <h1>Say "I love you" 💬</h1>
+  <div class="heart" id="heart"></div>
+  <div class="message" id="message">I love you more MAGGU 💖</div>
+  
+  <!-- Replay Button -->
+  <button id="replayBtn">Replay</button>
+
+  <!-- Background Music -->
+  <audio id="backgroundMusic" loop autoplay>
+    <source src="vieos/VID-20250118-WA0007 (online-audio-converter.com).mp3" type="audio/wav">
+    Your browser does not support the audio tag.
+  </audio>
+
+  <!-- Floating hearts and roses (JS will populate) -->
+
+  <script>
+    // Speech Recognition Setup
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!window.SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.continuous = true;
+
+      const heart = document.getElementById('heart');
+      const message = document.getElementById('message');
+
+      // Custom phrases and responses in multiple languages
+      const phrases = {
+        "i love you": "I love you too 💖",
+        "te quiero": "Te quiero también 💖", // Spanish
+        "je t'aime": "Je t'aime aussi 💖", // French
+        "te amu": "Te amu și eu 💖", // Romanian
+        "ich liebe dich": "Ich liebe dich auch 💖", // German
+        "be mine": "Of course, I will be yours 💖"
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+        console.log("Heard:", transcript);
+
+        for (const phrase in phrases) {
+          if (transcript.includes(phrase)) {
+            heart.classList.add('show');
+            message.textContent = phrases[phrase];
+            message.classList.add('visible');
+            break;
+          }
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.error("Speech recognition error:", e.error);
+      };
+
+      recognition.start();
+    }
+
+    // Create floating hearts and roses
+    const emojis = [
+      "https://cdn-icons-png.flaticon.com/512/833/833472.png", // Heart
+      "https://cdn-icons-png.flaticon.com/512/616/616408.png"  // Rose
+    ];
+
+    function createFloatEmoji() {
+      const img = document.createElement("div");
+      img.className = "float";
+      const size = Math.random() * 20 + 30;
+      img.style.left = Math.random() * 100 + "vw";
+      img.style.width = size + "px";
+      img.style.height = size + "px";
+      img.style.backgroundImage = `url(${emojis[Math.floor(Math.random() * emojis.length)]})`;
+      img.style.animationDuration = (Math.random() * 5 + 7) + "s";
+
+      document.body.appendChild(img);
+
+      setTimeout(() => {
+        img.remove();
+      }, 12000);
+    }
+
+    setInterval(createFloatEmoji, 800);
+
+    // Replay button functionality
+    const replayBtn = document.getElementById('replayBtn');
+    replayBtn.addEventListener('click', () => {
+      heart.classList.remove('show');
+      message.classList.remove('visible');
+      message.textContent = "I love you too 💖";
+      recognition.start();
+    });
+  </script>
+</body>
+</html>
